@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Star, ShoppingBag, Heart } from 'lucide-react';
 import { Cake } from '@/data/cakes';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist } from '@/store/wishlistSlice';
+import type { RootState } from '@/store/store';
+import { toast } from 'sonner';
 
 interface CakeCardProps {
   cake: Cake;
@@ -12,6 +16,20 @@ interface CakeCardProps {
 }
 
 const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => {
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+  const isInWishlist = wishlistItems.some(item => item.id === cake.id);
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(cake.id));
+      toast.success('Removed from wishlist');
+    } else {
+      dispatch(addToWishlist(cake));
+      toast.success('Added to wishlist');
+    }
+  };
+
   const { id, name, description, price, image, rating, reviews, bestseller } = cake;
 
   return (
@@ -27,8 +45,14 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => 
             Bestseller
           </span>
         )}
-        <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/70 flex items-center justify-center backdrop-blur-sm transition-all hover:bg-white">
-          <Heart size={18} className="text-cake-600 hover:fill-cake-500" />
+        <button 
+          onClick={handleWishlistToggle}
+          className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/70 flex items-center justify-center backdrop-blur-sm transition-all hover:bg-white"
+        >
+          <Heart 
+            size={18} 
+            className={`text-cake-600 transition-colors ${isInWishlist ? 'fill-cake-600' : 'hover:fill-cake-500'}`} 
+          />
         </button>
       </div>
       
