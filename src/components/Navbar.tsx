@@ -3,11 +3,16 @@ import { Link } from 'react-router-dom';
 import { ShoppingBag, User, Heart, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+import { RootState } from '@/store/store';  
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);  
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  
+
+
+  const cartCount = cartItems.length
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b py-4">
@@ -49,7 +54,7 @@ const Navbar = () => {
             <Button variant="ghost" className="rounded-full" asChild>
               <Link to="/cart">
                 <ShoppingBag size={20} />
-                <span className="ml-1">0</span>
+                <span className="ml-1">{cartCount}</span>
               </Link>
             </Button>
             <Button variant="ghost" className="rounded-full" asChild>
