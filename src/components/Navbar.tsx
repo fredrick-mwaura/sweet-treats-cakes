@@ -1,11 +1,13 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, Heart, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b py-4">
@@ -17,7 +19,6 @@ const Navbar = () => {
           <span className="font-serif font-bold text-2xl">Sweet Treats</span>
         </Link>
 
-        {/* Mobile menu button */}
         <button 
           className="md:hidden text-foreground" 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -25,7 +26,6 @@ const Navbar = () => {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* Desktop navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="font-medium hover:text-primary transition-colors">
             Home
@@ -39,13 +39,27 @@ const Navbar = () => {
           <Link to="/about" className="font-medium hover:text-primary transition-colors">
             About Us
           </Link>
-          <Button variant="ghost" className="rounded-full">
-            <ShoppingBag size={20} />
-            <span className="ml-1">0</span>
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" className="rounded-full" asChild>
+              <Link to="/wishlist">
+                <Heart size={20} />
+                <span className="ml-1">{wishlistItems.length}</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" className="rounded-full" asChild>
+              <Link to="/cart">
+                <ShoppingBag size={20} />
+                <span className="ml-1">0</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" className="rounded-full" asChild>
+              <Link to="/profile">
+                <User size={20} />
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        {/* Mobile navigation */}
         {isMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-background border-b p-4 md:hidden">
             <div className="flex flex-col space-y-4">
@@ -77,10 +91,30 @@ const Navbar = () => {
               >
                 About Us
               </Link>
-              <Button variant="ghost" className="w-full justify-start rounded-full">
+              <Link 
+                to="/wishlist" 
+                className="flex items-center font-medium hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Heart size={20} />
+                <span className="ml-2">Wishlist ({wishlistItems.length})</span>
+              </Link>
+              <Link 
+                to="/cart" 
+                className="flex items-center font-medium hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 <ShoppingBag size={20} />
-                <span className="ml-1">Cart (0)</span>
-              </Button>
+                <span className="ml-2">Cart (0)</span>
+              </Link>
+              <Link 
+                to="/profile" 
+                className="flex items-center font-medium hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={20} />
+                <span className="ml-2">Profile</span>
+              </Link>
             </div>
           </div>
         )}
@@ -89,7 +123,6 @@ const Navbar = () => {
   );
 };
 
-// Custom cake icon
 const CakeIcon = () => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
