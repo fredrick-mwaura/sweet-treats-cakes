@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Cake } from '@/data/cakes';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToWishlist, removeFromWishlist } from '@/store/wishlistSlice';
+import { addToCart } from '@/store/cartSlice';
 import type { RootState } from '@/store/store';
 import { toast } from 'sonner';
 
@@ -28,6 +28,11 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => 
       dispatch(addToWishlist(cake));
       toast.success('Added to wishlist');
     }
+  };
+
+  const handleAddToCart = () => {
+    dispatch(addToCart(cake));
+    toast.success('Added to cart');
   };
 
   const { id, name, description, price, image, rating, reviews, bestseller } = cake;
@@ -83,7 +88,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => 
                 <Link to={`/customize?base=${id}`}>Customize</Link>
               </Button>
             )}
-            <Button size="sm" className="rounded-full">
+            <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
               <ShoppingBag size={16} className="mr-2" /> Add
             </Button>
           </div>

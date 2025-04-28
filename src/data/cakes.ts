@@ -1,4 +1,3 @@
-
 export interface Cake {
   id: string;
   name: string;
@@ -95,6 +94,46 @@ export const cakes: Cake[] = [
     rating: 4.9,
     reviews: 64,
     bestseller: true
+  },
+  {
+    id: '7',
+    name: 'Matcha Green Tea Dream',
+    description: 'Light and refreshing matcha green tea cake with white chocolate cream.',
+    price: 41.99,
+    image: 'https://images.unsplash.com/photo-1583516858982-f70077361043?w=800&auto=format&fit=crop',
+    category: ['specialty', 'asian-inspired'],
+    flavors: ['matcha', 'white chocolate'],
+    toppings: ['matcha powder', 'white chocolate shavings', 'edible flowers'],
+    sizes: ['6"', '8"', '10"'],
+    rating: 4.7,
+    reviews: 45
+  },
+  {
+    id: '8',
+    name: 'Tiramisu Delight',
+    description: 'Classic Italian tiramisu-inspired cake with coffee-soaked layers.',
+    price: 43.99,
+    image: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=800&auto=format&fit=crop',
+    category: ['coffee', 'italian'],
+    flavors: ['coffee', 'mascarpone'],
+    toppings: ['cocoa powder', 'chocolate curls', 'coffee beans'],
+    sizes: ['6"', '8"', '10"'],
+    rating: 4.9,
+    reviews: 87,
+    bestseller: true
+  },
+  {
+    id: '9',
+    name: 'Tropical Paradise',
+    description: 'Coconut cake with passion fruit curd and mango mousse.',
+    price: 45.99,
+    image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=800&auto=format&fit=crop',
+    category: ['tropical', 'fruit'],
+    flavors: ['coconut', 'passion fruit', 'mango'],
+    toppings: ['fresh tropical fruit', 'toasted coconut', 'white chocolate'],
+    sizes: ['6"', '8"', '10"'],
+    rating: 4.8,
+    reviews: 56
   }
 ];
 
