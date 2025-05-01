@@ -1,78 +1,120 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { 
-  signIn, 
-  signUp, 
-  signOut, 
-  getCurrentUser, 
-  updateProfile as updateSupabaseProfile,
-  SignInCredentials,
-  SignUpCredentials,
-} from '../services/supabase';
 
-interface UserProfile {
-  id: string;
-  email: string;
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { supabase } from '../services/supabase';
+import type { User, UserMetadata } from '@supabase/supabase-js';
+
+// Define custom type for our user metadata to extend the default UserMetadata
+interface CustomUserMetadata extends UserMetadata {
   full_name?: string;
   avatar_url?: string;
   phone?: string;
 }
 
-interface AuthState {
-  user: UserProfile | null;
-  isAuthenticated: boolean;
+interface UserState {
+  user: {
+    id: string;
+    email: string;
+    full_name: string;
+    avatar_url?: string;
+    phone?: string;
+  } | null;
   loading: boolean;
   error: string | null;
 }
 
-const initialState: AuthState = {
+const initialState: UserState = {
   user: null,
-  isAuthenticated: false,
   loading: false,
-  error: null,
+  error: null
 };
 
-export const loginUser = createAsyncThunk(
-  'auth/login',
-  async (credentials: SignInCredentials, { rejectWithValue }) => {
+export const fetchCurrentUser = createAsyncThunk(
+  'auth/fetchCurrentUser',
+  async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return null;
+    
+    // Extract user metadata in a type-safe way
+    const metadata = user.user_metadata as CustomUserMetadata;
+    
+    return {
+      id: user.id,
+      email: user.email!,
+      full_name: metadata.full_name || '',
+      avatar_url: metadata.avatar_url,
+      phone: metadata.phone
+    };
+  }
+);
+
+export const signIn = createAsyncThunk(
+  'auth/signIn',
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const { user } = await signIn(credentials);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw new Error(error.message);
+      if (!data.user) throw new Error('User not found');
+
+      // Extract user metadata in a type-safe way
+      const metadata = data.user.user_metadata as CustomUserMetadata;
+      
       return {
-        id: user.id,
-        email: user.email || '',
-        full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url,
-        phone: user.user_metadata?.phone,
-      } as UserProfile;
+        id: data.user.id,
+        email: data.user.email!,
+        full_name: metadata.full_name || '',
+        avatar_url: metadata.avatar_url,
+        phone: metadata.phone
+      };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-export const registerUser = createAsyncThunk(
-  'auth/register',
-  async (credentials: SignUpCredentials, { rejectWithValue }) => {
+export const signUp = createAsyncThunk(
+  'auth/signUp',
+  async ({ email, password, full_name }: { email: string; password: string; full_name: string }, { rejectWithValue }) => {
     try {
-      const { user } = await signUp(credentials);
-      if (!user) {
-        return rejectWithValue('Please check your email to confirm your account');
-      }
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name
+          }
+        }
+      });
+      
+      if (error) throw new Error(error.message);
+      if (!data.user) throw new Error('User registration failed');
+      
+      // Extract user metadata in a type-safe way
+      const metadata = data.user.user_metadata as CustomUserMetadata;
+      
       return {
-        id: user.id,
-        email: user.email || '',
-        full_name: credentials.full_name,
-      } as UserProfile;
+        id: data.user.id,
+        email: data.user.email!,
+        full_name: metadata.full_name || '',
+        avatar_url: metadata.avatar_url,
+        phone: metadata.phone
+      };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-export const logoutUser = createAsyncThunk(
-  'auth/logout',
+export const signOut = createAsyncThunk(
+  'auth/signOut',
   async (_, { rejectWithValue }) => {
     try {
-      await signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw new Error(error.message);
       return null;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -80,45 +122,34 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
-  async (_, { rejectWithValue }) => {
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async ({ full_name, phone }: { full_name?: string; phone?: string }, { getState, rejectWithValue }) => {
     try {
-      const user = await getCurrentUser();
-      if (!user) return null;
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name, phone }
+      });
+      
+      if (error) throw new Error(error.message);
+      if (!data.user) throw new Error('User not found');
+      
+      // Extract user metadata in a type-safe way
+      const metadata = data.user.user_metadata as CustomUserMetadata;
       
       return {
-        id: user.id,
-        email: user.email || '',
-        full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url,
-        phone: user.user_metadata?.phone,
-      } as UserProfile;
+        id: data.user.id,
+        email: data.user.email!,
+        full_name: metadata.full_name || '',
+        avatar_url: metadata.avatar_url,
+        phone: metadata.phone
+      };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-export const updateUserProfile = createAsyncThunk(
-  'auth/updateProfile',
-  async (updates: { full_name?: string; phone?: string }, { rejectWithValue }) => {
-    try {
-      const { user } = await updateSupabaseProfile(updates);
-      return {
-        id: user.id,
-        email: user.email || '',
-        full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url,
-        phone: user.user_metadata?.phone,
-      } as UserProfile;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const authSlice = createSlice({
+const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
@@ -127,81 +158,78 @@ export const authSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder
-      // Login
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        state.loading = false;
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      // Register
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isAuthenticated = !!action.payload;
-        state.loading = false;
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      // Logout
-      .addCase(logoutUser.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.isAuthenticated = false;
-        state.loading = false;
-      })
-      .addCase(logoutUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      // Fetch Current User
-      .addCase(fetchCurrentUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isAuthenticated = !!action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchCurrentUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      
-      // Update Profile
-      .addCase(updateUserProfile.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateUserProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
-      })
-      .addCase(updateUserProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
-  },
+    // fetchCurrentUser
+    builder.addCase(fetchCurrentUser.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(fetchCurrentUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message || 'Failed to fetch user';
+    });
+    
+    // signIn
+    builder.addCase(signIn.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(signIn.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(signIn.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string || 'Failed to sign in';
+    });
+    
+    // signUp
+    builder.addCase(signUp.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(signUp.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(signUp.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string || 'Failed to sign up';
+    });
+    
+    // signOut
+    builder.addCase(signOut.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(signOut.fulfilled, (state) => {
+      state.loading = false;
+      state.user = null;
+    });
+    builder.addCase(signOut.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string || 'Failed to sign out';
+    });
+    
+    // updateProfile
+    builder.addCase(updateProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(updateProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string || 'Failed to update profile';
+    });
+  }
 });
 
 export const { clearError } = authSlice.actions;
+
 export default authSlice.reducer;

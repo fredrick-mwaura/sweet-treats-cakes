@@ -1,5 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CakeCard from '@/components/CakeCard';
@@ -8,8 +9,18 @@ import { cakes } from '@/data/cakes';
 import { Search } from 'lucide-react';
 
 const Gallery = () => {
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState(categoryFromUrl || 'all');
+  
+  // Update active filter when URL parameter changes
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setActiveFilter(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
   
   const filters = [
     { id: 'all', label: 'All Cakes' },
@@ -17,6 +28,11 @@ const Gallery = () => {
     { id: 'fruit', label: 'Fruit' },
     { id: 'vanilla', label: 'Vanilla' },
     { id: 'birthday', label: 'Birthday' },
+    { id: 'wedding', label: 'Wedding' },
+    { id: 'cupcakes', label: 'Cupcakes' },
+    { id: 'metropolitan', label: 'Metropolitan' },
+    { id: 'themed', label: 'Themed' },
+    { id: 'gift', label: 'Gift' },
     { id: 'celebration', label: 'Celebration' }
   ];
   
