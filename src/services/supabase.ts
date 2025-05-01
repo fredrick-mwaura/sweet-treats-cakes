@@ -1,7 +1,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Get environment variables with fallbacks for development
+// Use actual placeholder values instead of empty strings
+// This fixes the "supabaseUrl is required" error
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 
