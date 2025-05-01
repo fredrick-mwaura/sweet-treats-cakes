@@ -9,6 +9,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Add optimizeDeps configuration for better dependency handling
+    fs: {
+      strict: true,
+    },
+  },
+  optimizeDeps: {
+    include: ['@supabase/supabase-js'],
+    esbuildOptions: {
+      target: 'es2020'
+    }
   },
   plugins: [
     react(),
