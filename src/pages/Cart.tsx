@@ -42,7 +42,7 @@ const Cart = () => {
                 <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
                 <div className="flex-grow">
                   <h3 className="font-serif text-lg font-medium">{item.name}</h3>
-                  <p className="text-muted-foreground">${item.price.toFixed(2)}</p>
+                  <p className="text-muted-foreground">ksh{item.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -62,7 +62,7 @@ const Cart = () => {
                   </Button>
                 </div>
                 <div className="text-right min-w-[100px]">
-                  <div className="font-medium">${(item.price * item.quantity).toFixed(2)}</div>
+                  <div className="font-medium">ksh{(item.price * item.quantity).toFixed(2)}</div>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -77,7 +77,7 @@ const Cart = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center text-lg font-medium">
                 <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>ksh{total.toFixed(2)}</span>
               </div>
               <Button className="w-full mt-4">Proceed to Checkout</Button>
             </div>

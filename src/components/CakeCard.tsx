@@ -37,6 +37,8 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => 
 
   const { id, name, description, price, image, rating, reviews, bestseller } = cake;
 
+  const customPrice = price.toLocaleString('en-US');
+
   return (
     <Card className="cake-card group h-full flex flex-col overflow-hidden">
       <div className="relative overflow-hidden pb-[60%]">
@@ -81,7 +83,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake, customizeButton = true }) => 
         <div className="flex-grow"></div>
         
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-lg">${price.toFixed(2)}</span>
+          <span className="font-semibold text-lg">ksh{customPrice}</span>
           <div className="space-x-2">
             {customizeButton && (
               <Button asChild variant="outline" size="sm" className="rounded-full">

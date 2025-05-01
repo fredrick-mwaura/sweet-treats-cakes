@@ -101,7 +101,7 @@ export const AuthForm = ({ mode, onSubmit, loading, error }: AuthFormProps) => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input type="password" placeholder="******" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

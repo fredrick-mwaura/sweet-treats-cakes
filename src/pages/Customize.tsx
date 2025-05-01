@@ -11,6 +11,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { cakeCustomizationOptions, cakes } from '@/data/cakes';
 import { CustomizerProvider, useCustomizer } from '@/context/CustomizerContext';
 import { Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '@/store/cartSlice';
 
 const CustomizerContent = () => {
   const { toast } = useToast();
@@ -28,6 +30,7 @@ const CustomizerContent = () => {
     setMessage,
     setQuantity,
   } = useCustomizer();
+  const dispatch = useDispatch();
 
   // Check if we have a base cake from query parameter
   useEffect(() => {
@@ -39,12 +42,46 @@ const CustomizerContent = () => {
     }
   }, [location.search, setBaseCake]);
 
-  const handleAddToCart = () => {
-    toast({
-      title: "Added to cart!",
-      description: `Your custom ${state.baseCake?.name || 'cake'} has been added to your cart.`,
-    });
+const handleAddToCart = () => {
+  const basePrice = state.baseCake?.price || 0;
+  const sizePrice = cakeCustomizationOptions.sizes.find(s => s.id === state.size)?.price || 0;
+  const flavorPrice = cakeCustomizationOptions.flavors.find(f => f.id === state.flavor)?.price || 0;
+  const frostingPrice = cakeCustomizationOptions.frostings.find(f => f.id === state.frosting)?.price || 0;
+  const fillingPrice = cakeCustomizationOptions.fillings.find(f => f.id === state.filling)?.price || 0;
+  const toppingPrice = cakeCustomizationOptions.toppings.find(t => t.id === state.topping)?.price || 0;
+  const decorationPrice = cakeCustomizationOptions.decorations.find(d => d.id === state.decoration)?.price || 0;
+
+  const totalPrice =
+    basePrice +
+    sizePrice +
+    flavorPrice +
+    frostingPrice +
+    fillingPrice +
+    toppingPrice +
+    decorationPrice;
+
+  const customizedCake = {
+    id: `${state.baseCake?.id}-${Date.now()}`,
+    baseCake: state.baseCake,
+    size: cakeCustomizationOptions.sizes.find(s => s.id === state.size),
+    flavor: cakeCustomizationOptions.flavors.find(f => f.id === state.flavor),
+    frosting: cakeCustomizationOptions.frostings.find(f => f.id === state.frosting),
+    filling: cakeCustomizationOptions.fillings.find(f => f.id === state.filling),
+    topping: cakeCustomizationOptions.toppings.find(t => t.id === state.topping),
+    decoration: cakeCustomizationOptions.decorations.find(d => d.id === state.decoration),
+    message: state.message,
+    quantity: state.quantity,
+    price: totalPrice, // <--- ADD THIS
   };
+
+  dispatch(addToCart(customizedCake));
+
+  toast({
+    title: "Added to cart!",
+    description: `Your custom ${state.baseCake?.name || 'cake'} has been added to your cart.`,
+  });
+};
+
 
   return (
     <div className="container py-8">
@@ -93,7 +130,7 @@ const CustomizerContent = () => {
                       <h4 className="font-medium">{sizeOption.name}</h4>
                       <p className="text-sm text-muted-foreground">{sizeOption.serves}</p>
                       {sizeOption.priceModifier > 0 && (
-                        <p className="text-sm font-medium mt-1">+${sizeOption.priceModifier.toFixed(2)}</p>
+                        <p className="text-sm font-medium mt-1">+ksh{sizeOption.priceModifier.toFixed(2)}</p>
                       )}
                     </div>
                   </Card>
@@ -128,7 +165,7 @@ const CustomizerContent = () => {
                       <h4 className="font-medium">{flavorOption.name}</h4>
                       <p className="text-xs text-muted-foreground line-clamp-2">{flavorOption.description}</p>
                       {flavorOption.priceModifier > 0 && (
-                        <p className="text-sm font-medium mt-1">+${flavorOption.priceModifier.toFixed(2)}</p>
+                        <p className="text-sm font-medium mt-1">+ksh{flavorOption.priceModifier.toFixed(2)}</p>
                       )}
                     </div>
                   </Card>
@@ -210,7 +247,7 @@ const CustomizerContent = () => {
                       <h4 className="font-medium">{fillingOption.name}</h4>
                       <p className="text-xs text-muted-foreground line-clamp-2">{fillingOption.description}</p>
                       {fillingOption.priceModifier > 0 && (
-                        <p className="text-sm font-medium mt-1">+${fillingOption.priceModifier.toFixed(2)}</p>
+                        <p className="text-sm font-medium mt-1">+ksh{fillingOption.priceModifier.toFixed(2)}</p>
                       )}
                     </div>
                   </Card>
@@ -250,7 +287,7 @@ const CustomizerContent = () => {
                       <h4 className="font-medium">{toppingOption.name}</h4>
                       <p className="text-xs text-muted-foreground line-clamp-2">{toppingOption.description}</p>
                       {toppingOption.priceModifier > 0 && (
-                        <p className="text-sm font-medium mt-1">+${toppingOption.priceModifier.toFixed(2)}</p>
+                        <p className="text-sm font-medium mt-1">+ksh{toppingOption.priceModifier.toFixed(2)}</p>
                       )}
                     </div>
                   </Card>
@@ -290,7 +327,7 @@ const CustomizerContent = () => {
                       <h4 className="font-medium">{decorationOption.name}</h4>
                       <p className="text-xs text-muted-foreground line-clamp-2">{decorationOption.description}</p>
                       {decorationOption.priceModifier > 0 && (
-                        <p className="text-sm font-medium mt-1">+${decorationOption.priceModifier.toFixed(2)}</p>
+                        <p className="text-sm font-medium mt-1">+ksh{decorationOption.priceModifier.toFixed(2)}</p>
                       )}
                     </div>
                   </Card>
@@ -413,7 +450,7 @@ const CustomizerContent = () => {
                 
                 <div className="flex items-center justify-between text-lg font-semibold mb-6">
                   <span>Total:</span>
-                  <span>${state.totalPrice}</span>
+                  <span>ksh{state.totalPrice}</span>
                 </div>
                 
                 <Button onClick={handleAddToCart} className="w-full">
