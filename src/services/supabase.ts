@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Use actual placeholder values instead of empty strings
@@ -12,11 +11,17 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
   console.info('Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment variables.');
 }
 
-// Create Supabase client with options for better reliability
+// Create Supabase client with options for better reliability and disable realtime to prevent WebSocket errors
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true
+  },
+  // Disable realtime functionality to prevent WebSocket token errors
+  realtime: {
+    params: {
+      eventsPerSecond: 0 // Disable realtime completely
+    }
   }
 });
 

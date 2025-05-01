@@ -40,8 +40,8 @@ export const loginUser = createAsyncThunk(
         id: user.id,
         email: user.email || '',
         full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url || undefined,
-        phone: user.user_metadata?.phone || undefined,
+        avatar_url: user.user_metadata?.avatar_url,
+        phone: user.user_metadata?.phone,
       } as UserProfile;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -91,8 +91,8 @@ export const fetchCurrentUser = createAsyncThunk(
         id: user.id,
         email: user.email || '',
         full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url || undefined,
-        phone: user.user_metadata?.phone || undefined,
+        avatar_url: user.user_metadata?.avatar_url,
+        phone: user.user_metadata?.phone,
       } as UserProfile;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -109,8 +109,8 @@ export const updateUserProfile = createAsyncThunk(
         id: user.id,
         email: user.email || '',
         full_name: user.user_metadata?.full_name,
-        avatar_url: user.user_metadata?.avatar_url || undefined,
-        phone: user.user_metadata?.phone || undefined,
+        avatar_url: user.user_metadata?.avatar_url,
+        phone: user.user_metadata?.phone,
       } as UserProfile;
     } catch (error: any) {
       return rejectWithValue(error.message);
